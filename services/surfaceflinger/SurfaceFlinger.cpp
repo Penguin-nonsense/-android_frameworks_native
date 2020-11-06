@@ -3115,13 +3115,17 @@ void SurfaceFlinger::postComposition(nsecs_t callTime) {
     mQtiSFExtnIntf->qtiUpdateSmomoState();
     /* QTI_END */
 
-    if (isDisplayConnected && !defaultDisplay->isPoweredOn()) {
+    if (hasPacesetterDisplay && !pacesetterDisplay->isPoweredOn()) {
+#ifndef DISABLE_POSTRENDER_CLEANUP
         getRenderEngine().cleanupPostRender();
+#endif
         return;
     }
 
+#ifndef DISABLE_POSTRENDER_CLEANUP
     // Cleanup any outstanding resources due to rendering a prior frame.
     getRenderEngine().cleanupPostRender();
+#endif
 
     {
         std::lock_guard lock(mTexturePoolMutex);
