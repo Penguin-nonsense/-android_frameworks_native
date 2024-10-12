@@ -182,6 +182,26 @@ public:
     virtual void qtiDumpMini(std::string& result) = 0;
     virtual status_t qtiDoDumpContinuous(int fd, const DumpArgs& args) = 0;
     virtual void qtiDumpDrawCycle(bool prePrepare) = 0;
+
+    /*
+     * Methods for multiple displays
+     */
+    // enable/disable h/w composer event
+    // TODO: this should be made accessible only to EventThread
+    // main thread function to enable/disable h/w composer event
+    virtual void qtiSetVsyncEnabledInternal(PhysicalDisplayId id, bool enabled) = 0;
+    virtual sp<DisplayDevice> qtiGetVsyncSource() = 0;
+    virtual void qtiUpdateVsyncSource() = 0;
+    virtual nsecs_t qtiGetVsyncPeriodFromHWC() const = 0;
+    virtual void qtiUpdateNextVsyncSource() = 0;
+    virtual void qtiUpdateActiveVsyncSource() = 0;
+    virtual bool qtiIsDummyDisplay(const sp<DisplayDevice>& display) = 0;
+    virtual nsecs_t qtiGetVsyncPeriodFromHWCcb() = 0;
+    virtual void qtiUpdateActiveDisplayOnRemove(PhysicalDisplayId id,
+                                                bool isDisplayActiveToken) = 0;
+    virtual void qtiUpdateActiveDisplayOnPowerOn(PhysicalDisplayId id, Fps refreshRate) = 0;
+    virtual void qtiUpdateActiveDisplayOnPowerOff(PhysicalDisplayId id) = 0;
+    virtual sp<DisplayDevice> qtiGetVsyncSourceForFence() = 0;
 };
 
 } // namespace android::surfaceflingerextension

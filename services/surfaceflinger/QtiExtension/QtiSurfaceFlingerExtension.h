@@ -268,6 +268,25 @@ public:
       long long int position = 0;
     } mFileDump;
 
+    /*
+     * Methods for multiple displays
+     */
+    // enable/disable h/w composer event
+    // TODO: this should be made accessible only to EventThread
+    // main thread function to enable/disable h/w composer event
+    void qtiSetVsyncEnabledInternal(PhysicalDisplayId id, bool enabled);
+    sp<DisplayDevice> qtiGetVsyncSource();
+    void qtiUpdateVsyncSource();
+    nsecs_t qtiGetVsyncPeriodFromHWC() const;
+    void qtiUpdateNextVsyncSource();
+    void qtiUpdateActiveVsyncSource();
+    bool qtiIsDummyDisplay(const sp<DisplayDevice>& display);
+    nsecs_t qtiGetVsyncPeriodFromHWCcb();
+    void qtiUpdateActiveDisplayOnRemove(PhysicalDisplayId id, bool isDisplayActiveToken);
+    void qtiUpdateActiveDisplayOnPowerOn(PhysicalDisplayId id, Fps refreshRate);
+    void qtiUpdateActiveDisplayOnPowerOff(PhysicalDisplayId id);
+    sp<DisplayDevice> qtiGetVsyncSourceForFence();
+
 private:
     SmomoIntf* qtiGetSmomoInstance(const uint32_t layerStackId) const;
     bool qtiIsInternalDisplay(const sp<DisplayDevice>& display);
@@ -334,6 +353,10 @@ private:
     std::unordered_map<DisplayId, VisibleLayerInfo> mQtiVisibleLayerInfoMap;
 
     std::vector<SmomoInfo> mQtiSmomoInstances{};
+
+    sp<DisplayDevice> mQtiActiveVsyncSource = NULL;
+    sp<DisplayDevice> mQtiNextVsyncSource = NULL;
+    mutable std::recursive_mutex mQtiVsyncLock;
 };
 
 } // namespace android::surfaceflingerextension
