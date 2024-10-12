@@ -233,10 +233,6 @@ void DisplayDevice::setPowerMode(hal::PowerMode mode) {
         mPowerMode.emplace("PowerMode -" + to_string(getId()), mode);
     }
 
-    /* QTI_BEGIN */
-    qtiResetVsyncPeriod();
-    /* QTI_END */
-
     getCompositionDisplay()->setCompositionEnabled(isPoweredOn());
 }
 
@@ -266,10 +262,6 @@ void DisplayDevice::setActiveMode(DisplayModeId modeId, Fps displayFps, Fps rend
 
     mRefreshRateSelector->setActiveMode(modeId, renderFps);
     updateRefreshRateOverlayRate(displayFps, renderFps);
-
-    /* QTI_BEGIN */
-    qtiResetVsyncPeriod();
-    /* QTI_END */
 }
 
 status_t DisplayDevice::initiateModeChange(const ActiveModeInfo& info,
@@ -298,31 +290,14 @@ void DisplayDevice::finalizeModeChange(DisplayModeId modeId, Fps displayFps, Fps
 }
 
 nsecs_t DisplayDevice::getVsyncPeriodFromHWC() const {
-    /* QTI_BEGIN */
-    std::scoped_lock<std::mutex> lock(mQtiModeLock);
-    /* QTI_END */
-
     const auto physicalId = getPhysicalId();
     if (!mHwComposer.isConnected(physicalId)) {
         return 0;
     }
 
-    /* QTI_BEGIN */
-    if (!mQtiVsyncPeriodUpdated && mQtiVsyncPeriod) {
-        return mQtiVsyncPeriod;
-    }
-    /* QTI_END */
-
     nsecs_t vsyncPeriod;
     const auto status = mHwComposer.getDisplayVsyncPeriod(physicalId, &vsyncPeriod);
     if (status == NO_ERROR) {
-        /* QTI_BEGIN */
-        if (mQtiVsyncPeriod == vsyncPeriod) {
-            mQtiVsyncPeriodUpdated = false;
-        } else {
-            mQtiVsyncPeriod = vsyncPeriod;
-        }
-        /* QTI_END */
         return vsyncPeriod;
     }
 
@@ -586,11 +561,6 @@ auto DisplayDevice::setDesiredActiveMode(const ActiveModeInfo& info, bool force)
     // Initiate a mode change.
     mDesiredActiveModeChanged = true;
     mDesiredActiveMode = info;
-
-    /* QTI_BEGIN */
-    qtiResetVsyncPeriod();
-    /* QTI_END */
-
     return DesiredActiveModeAction::InitiateDisplayModeSwitch;
 }
 
