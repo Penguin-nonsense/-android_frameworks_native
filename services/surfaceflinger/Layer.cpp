@@ -90,7 +90,7 @@
 #include "TunnelModeEnabledReporter.h"
 
 #define DEBUG_RESIZE 0
-#define EARLY_RELEASE_ENABLED false
+#define EARLY_RELEASE_ENABLED true
 
 namespace android {
 namespace {
